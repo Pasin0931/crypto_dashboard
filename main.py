@@ -1,28 +1,65 @@
-import websocket
-import json
+# 1. Get Current Price
+import requests
 
-def on_message(ws, message):
-    data = json.loads(message)
-    print(f"BTC Price: ${data['c']}")  # 'c' is current price
+# url = "https://api.binance.com/api/v3/ticker/price"
+# params = {"symbol": "BTCUSDT"}
+# response = requests.get(url, params=params)
+# this_res = response.json()
+# print(this_res)                  # Get real time price
+# # {"symbol": "BTCUSDT", "price": "95234.50"}
 
-def on_error(ws, error):
-    print(f"Error: {error}")
+# # 2. Get 24-Hour Statistics
+# url = "https://api.binance.com/api/v3/ticker/24hr"
+# params = {"symbol": "BTCUSDT"}
+# response = requests.get(url, params=params)
+# data = response.json()
+# # print(data)                                    # Get statistic
+# # -------------------------
+# print(f"Price: ${data['lastPrice']}")
+# print(f"24h Change: {data['priceChangePercent']}%")
+# print(f"24h Volume: {data['volume']} BTC")
+# print(f"High: ${data['highPrice']}")
+# print(f"Low: ${data['lowPrice']}")
 
-def on_close(ws, close_status, close_msg):
-    print("Connection closed")
+# 3. Get Order Book Depth
+# url = "https://api.binance.com/api/v3/depth"
+# params = {"symbol": "BTCUSDT", "limit": 10}  # Top 10 bids/asks
+# response = requests.get(url, params=params)
+# data = response.json()
 
-def on_open(ws):
-    print("Connected to Binance")
+# print(data["bids"])            # Get all bids
 
-# WebSocket URL for BTC/USDT ticker
-ws_url = "wss://stream.binance.com:9443/ws/btcusdt@ticker"
+# print("Top 5 Bids (Buy Orders):")
+# for price, quantity in data['bids'][:5]:
+#     print(f"  Price: ${price}, Quantity: {quantity} BTC")
 
-ws = websocket.WebSocketApp(
-    ws_url,
-    on_message=on_message,
-    on_error=on_error,
-    on_close=on_close,
-    on_open=on_open
-)
+# print("\nTop 5 Asks (Sell Orders):")
+# for price, quantity in data['asks'][:5]:
+#     print(f"  Price: ${price}, Quantity: {quantity} BTC")
 
-ws.run_forever()
+# # 4. Get Recent Trades
+# url = "https://api.binance.com/api/v3/trades"
+# params = {"symbol": "BTCUSDT", "limit": 5}
+# response = requests.get(url, params=params)
+
+# for trade in response.json():
+#     side = "BUY" if trade['isBuyerMaker'] else "SELL"
+#     print(f"{side}: {trade['qty']} BTC @ ${trade['price']}")
+
+# # 5. Get Candlestick (Kline) Data
+# url = "https://api.binance.com/api/v3/klines"
+# params = {
+#     "symbol": "BTCUSDT",
+#     "interval": "1h",  # 1m, 5m, 15m, 1h, 4h, 1d, 1w, 1M
+#     "limit": 24  # Last 24 hours
+# }
+# response = requests.get(url, params=params)
+
+# for candle in response.json():
+#     timestamp = candle[0]
+#     open_price = candle[1]
+#     high = candle[2]
+#     low = candle[3]
+#     close = candle[4]
+#     volume = candle[5]
+#     print(f"Open: ${open_price}, High: ${high}, Low: ${low}, Close: ${close}")
