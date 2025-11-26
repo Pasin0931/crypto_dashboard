@@ -1,11 +1,28 @@
-import requests
+import websocket
+import json
 
-# REST endpoint for current price
-url = "https://api.binance.com/api/v3/ticker/price"
-params = {"symbol": "BTCUSDT"}
+def on_message(ws, message):
+    data = json.loads(message)
+    print(f"BTC Price: ${data['c']}")  # 'c' is current price
 
-response = requests.get(url, params=params)
-data = response.json()
+def on_error(ws, error):
+    print(f"Error: {error}")
 
-print(f"BTC Price: ${data['price']}")
-# Output: BTC Price: $95234.50
+def on_close(ws, close_status, close_msg):
+    print("Connection closed")
+
+def on_open(ws):
+    print("Connected to Binance")
+
+# WebSocket URL for BTC/USDT ticker
+ws_url = "wss://stream.binance.com:9443/ws/btcusdt@ticker"
+
+ws = websocket.WebSocketApp(
+    ws_url,
+    on_message=on_message,
+    on_error=on_error,
+    on_close=on_close,
+    on_open=on_open
+)
+
+ws.run_forever()
