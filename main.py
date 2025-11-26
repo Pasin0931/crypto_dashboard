@@ -4,101 +4,124 @@ import websocket
 import json
 import threading
 
-class BTCTicker:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("BTC Price Ticker")
-        self.root.geometry("400x200")
-        
-        self.is_closing = False
+class CryptoTicker:
+    """Reusable ticker component for any cryptocurrency."""
+    
+    def __init__(self, parent, symbol, display_name):
+        self.parent = parent
+        self.symbol = symbol.lower()
+        self.display_name = display_name
+        self.is_active = False
         self.ws = None
         
-        # UI Setup
-        self.setup_ui()
+        # Create UI
+        self.frame = ttk.Frame(parent, relief="solid", borderwidth=1, padding=20)
         
-        # Start WebSocket
-        self.start_websocket()
-    
-    def setup_ui(self):
         # Title
-        title = ttk.Label(self.root, text="BTC/USDT", 
-                         font=("Arial", 16, "bold"))
-        title.pack(pady=10)
+        ttk.Label(self.frame, text=display_name, 
+                 font=("Arial", 16, "bold")).pack()
         
-        # Price Display
-        self.price_label = tk.Label(self.root, text="--,---", 
-                                    font=("Arial", 48, "bold"),
-                                    fg="black")
-        self.price_label.pack(pady=20)
+        # Price
+        self.price_label = tk.Label(self.frame, text="--,---", 
+                                    font=("Arial", 40, "bold"))
+        self.price_label.pack(pady=10)
         
-        # Change Display
-        self.change_label = ttk.Label(self.root, text="--", 
-                                      font=("Arial", 14))
+        # Change
+        self.change_label = ttk.Label(self.frame, text="--", 
+                                      font=("Arial", 12))
         self.change_label.pack()
     
-    def start_websocket(self):
-        """Start WebSocket connection in background thread."""
-        ws_url = "wss://stream.binance.com:9443/ws/btcusdt@ticker"
+    def start(self):
+        """Start WebSocket connection."""
+        if self.is_active:
+            return
+        
+        self.is_active = True
+        ws_url = f"wss://stream.binance.com:9443/ws/{self.symbol}@ticker"
         
         self.ws = websocket.WebSocketApp(
             ws_url,
             on_message=self.on_message,
-            on_error=self.on_error,
-            on_close=self.on_close,
-            on_open=self.on_open
+            on_error=lambda ws, err: print(f"{self.symbol} error: {err}"),
+            on_close=lambda ws, s, m: print(f"{self.symbol} closed"),
+            on_open=lambda ws: print(f"{self.symbol} connected")
         )
         
-        # Run in separate thread to not block GUI
-        ws_thread = threading.Thread(target=self.ws.run_forever, daemon=True)
-        ws_thread.start()
+        threading.Thread(target=self.ws.run_forever, daemon=True).start()
+    
+    def stop(self):
+        """Stop WebSocket connection."""
+        self.is_active = False
+        if self.ws:
+            self.ws.close()
+            self.ws = None
     
     def on_message(self, ws, message):
-        """Handle incoming WebSocket messages."""
-        if self.is_closing:
+        """Handle price updates."""
+        if not self.is_active:
             return
         
         data = json.loads(message)
-        price = float(data['c'])  # Current price
-        change = float(data['p'])  # 24h price change
-        percent = float(data['P'])  # 24h percent change
+        price = float(data['c'])
+        change = float(data['p'])
+        percent = float(data['P'])
         
-        # Update GUI (must use root.after for thread safety)
-        self.root.after(0, self.update_display, price, change, percent)
+        # Schedule GUI update on main thread
+        self.parent.after(0, self.update_display, price, change, percent)
     
     def update_display(self, price, change, percent):
-        """Update the display with new price data."""
-        if self.is_closing:
+        """Update the ticker display."""
+        if not self.is_active:
             return
         
-        # Determine color based on change
         color = "green" if change >= 0 else "red"
-        
-        # Update price
         self.price_label.config(text=f"{price:,.2f}", fg=color)
         
-        # Update change
         sign = "+" if change >= 0 else ""
-        change_text = f"{sign}{change:,.2f} ({sign}{percent:.2f}%)"
-        self.change_label.config(text=change_text, foreground=color)
+        self.change_label.config(
+            text=f"{sign}{change:,.2f} ({sign}{percent:.2f}%)",
+            foreground=color
+        )
     
-    def on_error(self, ws, error):
-        print(f"WebSocket Error: {error}")
+    def pack(self, **kwargs):
+        """Allow easy placement of ticker."""
+        self.frame.pack(**kwargs)
     
-    def on_close(self, ws, status, msg):
-        print("WebSocket Closed")
-    
-    def on_open(self, ws):
-        print("WebSocket Connected")
+    def pack_forget(self):
+        """Hide the ticker."""
+        self.frame.pack_forget()
+
+
+class MultiTickerApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Crypto Dashboard")
+        self.root.geometry("800x300")
+        
+        # Create ticker panel
+        ticker_frame = ttk.Frame(root, padding=20)
+        ticker_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Create BTC ticker
+        self.btc_ticker = CryptoTicker(ticker_frame, "btcusdt", "BTC/USDT")
+        self.btc_ticker.pack(side=tk.LEFT, padx=10, fill=tk.BOTH, expand=True)
+        
+        # Create ETH ticker
+        self.eth_ticker = CryptoTicker(ticker_frame, "ethusdt", "ETH/USDT")
+        self.eth_ticker.pack(side=tk.LEFT, padx=10, fill=tk.BOTH, expand=True)
+        
+        # Start both tickers
+        self.btc_ticker.start()
+        self.eth_ticker.start()
     
     def on_closing(self):
         """Clean up when closing."""
-        self.is_closing = True
-        if self.ws:
-            self.ws.close()
+        self.btc_ticker.stop()
+        self.eth_ticker.stop()
         self.root.destroy()
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = BTCTicker(root)
+    app = MultiTickerApp(root)
     root.protocol("WM_DELETE_WINDOW", app.on_closing)
     root.mainloop()
