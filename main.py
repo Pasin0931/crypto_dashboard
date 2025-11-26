@@ -1,65 +1,104 @@
-# 1. Get Current Price
-import requests
+import tkinter as tk
+from tkinter import ttk
+import websocket
+import json
+import threading
 
-# url = "https://api.binance.com/api/v3/ticker/price"
-# params = {"symbol": "BTCUSDT"}
-# response = requests.get(url, params=params)
-# this_res = response.json()
-# print(this_res)                  # Get real time price
-# # {"symbol": "BTCUSDT", "price": "95234.50"}
+class BTCTicker:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("BTC Price Ticker")
+        self.root.geometry("400x200")
+        
+        self.is_closing = False
+        self.ws = None
+        
+        # UI Setup
+        self.setup_ui()
+        
+        # Start WebSocket
+        self.start_websocket()
+    
+    def setup_ui(self):
+        # Title
+        title = ttk.Label(self.root, text="BTC/USDT", 
+                         font=("Arial", 16, "bold"))
+        title.pack(pady=10)
+        
+        # Price Display
+        self.price_label = tk.Label(self.root, text="--,---", 
+                                    font=("Arial", 48, "bold"),
+                                    fg="black")
+        self.price_label.pack(pady=20)
+        
+        # Change Display
+        self.change_label = ttk.Label(self.root, text="--", 
+                                      font=("Arial", 14))
+        self.change_label.pack()
+    
+    def start_websocket(self):
+        """Start WebSocket connection in background thread."""
+        ws_url = "wss://stream.binance.com:9443/ws/btcusdt@ticker"
+        
+        self.ws = websocket.WebSocketApp(
+            ws_url,
+            on_message=self.on_message,
+            on_error=self.on_error,
+            on_close=self.on_close,
+            on_open=self.on_open
+        )
+        
+        # Run in separate thread to not block GUI
+        ws_thread = threading.Thread(target=self.ws.run_forever, daemon=True)
+        ws_thread.start()
+    
+    def on_message(self, ws, message):
+        """Handle incoming WebSocket messages."""
+        if self.is_closing:
+            return
+        
+        data = json.loads(message)
+        price = float(data['c'])  # Current price
+        change = float(data['p'])  # 24h price change
+        percent = float(data['P'])  # 24h percent change
+        
+        # Update GUI (must use root.after for thread safety)
+        self.root.after(0, self.update_display, price, change, percent)
+    
+    def update_display(self, price, change, percent):
+        """Update the display with new price data."""
+        if self.is_closing:
+            return
+        
+        # Determine color based on change
+        color = "green" if change >= 0 else "red"
+        
+        # Update price
+        self.price_label.config(text=f"{price:,.2f}", fg=color)
+        
+        # Update change
+        sign = "+" if change >= 0 else ""
+        change_text = f"{sign}{change:,.2f} ({sign}{percent:.2f}%)"
+        self.change_label.config(text=change_text, foreground=color)
+    
+    def on_error(self, ws, error):
+        print(f"WebSocket Error: {error}")
+    
+    def on_close(self, ws, status, msg):
+        print("WebSocket Closed")
+    
+    def on_open(self, ws):
+        print("WebSocket Connected")
+    
+    def on_closing(self):
+        """Clean up when closing."""
+        self.is_closing = True
+        if self.ws:
+            self.ws.close()
+        self.root.destroy()
 
-# # 2. Get 24-Hour Statistics
-# url = "https://api.binance.com/api/v3/ticker/24hr"
-# params = {"symbol": "BTCUSDT"}
-# response = requests.get(url, params=params)
-# data = response.json()
-# # print(data)                                    # Get statistic
-# # -------------------------
-# print(f"Price: ${data['lastPrice']}")
-# print(f"24h Change: {data['priceChangePercent']}%")
-# print(f"24h Volume: {data['volume']} BTC")
-# print(f"High: ${data['highPrice']}")
-# print(f"Low: ${data['lowPrice']}")
-
-# 3. Get Order Book Depth
-# url = "https://api.binance.com/api/v3/depth"
-# params = {"symbol": "BTCUSDT", "limit": 10}  # Top 10 bids/asks
-# response = requests.get(url, params=params)
-# data = response.json()
-
-# print(data["bids"])            # Get all bids
-
-# print("Top 5 Bids (Buy Orders):")
-# for price, quantity in data['bids'][:5]:
-#     print(f"  Price: ${price}, Quantity: {quantity} BTC")
-
-# print("\nTop 5 Asks (Sell Orders):")
-# for price, quantity in data['asks'][:5]:
-#     print(f"  Price: ${price}, Quantity: {quantity} BTC")
-
-# # 4. Get Recent Trades
-# url = "https://api.binance.com/api/v3/trades"
-# params = {"symbol": "BTCUSDT", "limit": 5}
-# response = requests.get(url, params=params)
-
-# for trade in response.json():
-#     side = "BUY" if trade['isBuyerMaker'] else "SELL"
-#     print(f"{side}: {trade['qty']} BTC @ ${trade['price']}")
-
-# # 5. Get Candlestick (Kline) Data
-# url = "https://api.binance.com/api/v3/klines"
-# params = {
-#     "symbol": "BTCUSDT",
-#     "interval": "1h",  # 1m, 5m, 15m, 1h, 4h, 1d, 1w, 1M
-#     "limit": 24  # Last 24 hours
-# }
-# response = requests.get(url, params=params)
-
-# for candle in response.json():
-#     timestamp = candle[0]
-#     open_price = candle[1]
-#     high = candle[2]
-#     low = candle[3]
-#     close = candle[4]
-#     volume = candle[5]
-#     print(f"Open: ${open_price}, High: ${high}, Low: ${low}, Close: ${close}")
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = BTCTicker(root)
+    root.protocol("WM_DELETE_WINDOW", app.on_closing)
+    root.mainloop()
