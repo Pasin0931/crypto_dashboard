@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, OptionMenu, StringVar
 
 from libs.widget_lib import System, Widget, Label, Button, Frame
 
@@ -22,8 +22,13 @@ close_button = button.create_button("close", comm=this_root.destroy)
 header_.pack(anchor="e", padx=55, pady=(25, 0)) # Header
 sub_header.pack(anchor="e", padx=55, pady=(0, 20))
 # button_1.pack()
+
+dropdown_1 = OptionMenu(this_root, StringVar(value="BTC"), *["BTC/UTC", "MyCoin", "HawkTuah Coin"])
+dropdown_1.config(width=16)
+dropdown_1.pack(anchor="w")
+
 frame_1.pack(anchor='e', padx=30)
-close_button.pack(anchor='se', pady=(25, 0), padx=40)
+close_button.pack(anchor='e', pady=(25, 0), padx=40)
 
 if __name__ == "__main__":
     this_root.mainloop()
