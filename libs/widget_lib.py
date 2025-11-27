@@ -9,7 +9,7 @@ class System:
         root = tk.Tk()
         root.config(bg="#252526")
         root.title("My Crypto")
-        root.geometry("1070x578") # resize window
+        root.geometry("1070x630") # resize window
         return root
     
 class Widget:
