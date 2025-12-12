@@ -4,6 +4,13 @@ from tkinter import ttk, OptionMenu, StringVar
 from libs.widget_lib import System, Widget, Label, Button, Frame
 from libs.lib_socket import socket
 
+def update_live_ui(data):   # Upadte token data real time
+    live_coin.config(text=data["s"])
+    live_price.config(text=f"${float(data['c']):.3f}")
+    live_volume.config(text=f"Volume: {float(data['v']):.3f}")
+    live_change_amount.config(text=f"Change: {float(data['p']):.3f}")
+    live_change_percent.config(text=f"Change (%): {data['P']}%")
+
 operator = System()
 this_root = operator.initiate()
 
@@ -112,5 +119,6 @@ close_button = button.create_button(None, "close", comm=this_root.destroy)
 close_button.pack(anchor="se", padx=30, pady=(20, 40))
 
 if __name__ == "__main__":
+    token_.set_update_callback(update_live_ui) # call back to update token data
     token_.setup_n_start_threading()
     this_root.mainloop()

@@ -8,11 +8,16 @@ class socket:
         self.name = name
         self.coin_data = {"s": "N/A", "c": "N/A", "v": 0, "P": 0, "p": 0}
 
+        self.update_callback = None # --
+
     def on_message(self, ws, message):
         data = json.loads(message)
         self.coin_data = data
         # print(data)
         print(f"BTC Price: ${data['c']}")
+
+        if self.update_callback:         # --
+            self.update_callback(data)   # --
 
     def on_error(self, ws, error):
         print(f"Error: {error}")
@@ -44,3 +49,6 @@ class socket:
         thread = threading.Thread(target=ws.run_forever, daemon=True)
         thread.start()
         return ws
+
+    def set_update_callback(self, callback_function):
+        self.update_callback = callback_function
