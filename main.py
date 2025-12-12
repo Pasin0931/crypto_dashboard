@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk, OptionMenu, StringVar
 
 from libs.widget_lib import System, Widget, Label, Button, Frame
-# from libs.lib_socket import socket
+from libs.lib_socket import socket
 
 operator = System()
 this_root = operator.initiate()
@@ -11,6 +11,8 @@ screen = Widget(this_root)
 label = Label(this_root)
 button = Button(this_root)
 frame = Frame(this_root)
+
+token_ = socket("wss://stream.binance.com:9443/ws/btcusdt@ticker", "BTC-USDT")
 
 # ----------------------------------- header
 header_ = label.create_label(None, "BTC/UTC Dashboard", 20, "bold")
@@ -43,26 +45,43 @@ b1.pack(ipadx=32, pady=(18,0))
 
 # Dropdown
 dropdown_var = StringVar(value="BTC")
-dropdown_1 = OptionMenu(left_panel, dropdown_var, "BTC/UTC", "MyCoin", "Plummet Coin")
+dropdown_1 = OptionMenu(left_panel, dropdown_var, "BTC/USDT","ETH/USDT","BNB/USDT","XRP/USDT","SOL/USDT")
 dropdown_1.config(width=16, bg="#1E1E1E", fg="white", highlightthickness=0)
 dropdown_1.pack(pady=(18, 18))
 
 # ------------------------------------------------------------------------------------------------------------------
 # Live Price
-live_box = frame.create_frame(left_panel, "ridge", 2, None, 220, 90)
+live_box = frame.create_frame(left_panel, "ridge", 2, None, 0, 100)
 live_box.pack()
 
+left_col = tk.Frame(live_box, bg="#1E1E1E")
+left_col.pack(side="left", anchor="nw", padx=10, pady=5)
+
+right_col = tk.Frame(live_box, bg="#1E1E1E")
+right_col.pack(side="left", anchor="nw", padx=20, pady=5)
+
+# ---------------- LEFT
 # Coin label
-live_coin = tk.Label(live_box, text="BTC/USDT", bg="#1E1E1E", fg="#AAAAAA", font=("Helvetica", 11, "bold"))
-live_coin.pack(anchor="w", padx=12, pady=(6, 0))
+live_coin = tk.Label(left_col, text=token_.coin_data["s"], bg="#1E1E1E", fg="#AAAAAA", font=("Helvetica", 11, "bold"))
+live_coin.pack(anchor="w")
 
-# Price label
-live_price = tk.Label(live_box, text="$90,321.76", bg="#1E1E1E", fg="white", font=("Helvetica", 18, "bold"))
-live_price.pack(anchor="w", padx=12)
+# Price
+live_price = tk.Label(left_col, text=token_.coin_data["c"], bg="#1E1E1E", fg="white", font=("Helvetica", 18, "bold"))
+live_price.pack(anchor="w")
 
-# Percentage label
-live_percent = tk.Label(live_box, text="-1.88%", bg="#1E1E1E", fg="#FF5555", font=("Helvetica", 11))
-live_percent.pack(anchor="w", padx=12, pady=(0, 6))
+# ---------------- RIGHT
+# Volume
+live_volume = tk.Label(right_col, text=f"Volume: {token_.coin_data['v']}", bg="#1E1E1E", fg="#AAAAAA", font=("Helvetica", 10))
+live_volume.pack(anchor="w", pady=2)
+
+# Change amount
+live_change_amount = tk.Label(right_col, text=f"Change: {token_.coin_data['p']}", bg="#1E1E1E", fg="white", font=("Helvetica", 10))
+live_change_amount.pack(anchor="w", pady=2)
+
+# Change percent
+live_change_percent = tk.Label(right_col, text=f"Change %: {token_.coin_data['P']}", bg="#1E1E1E", fg="#AAAAAA", font=("Helvetica", 10))
+live_change_percent.pack(anchor="w", pady=2)
+
 # ------------------------------------------------------------------------------------------------------------------
 
 # Bid and Sell Panels
@@ -93,4 +112,5 @@ close_button = button.create_button(None, "close", comm=this_root.destroy)
 close_button.pack(anchor="se", padx=30, pady=(20, 40))
 
 if __name__ == "__main__":
+    token_.setup_n_start_threading()
     this_root.mainloop()

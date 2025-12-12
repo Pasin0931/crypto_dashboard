@@ -6,7 +6,7 @@ class socket:
     def __init__(self, url, name):
         self.url = url
         self.name = name
-        self.coin_data = None
+        self.coin_data = {"s": "N/A", "c": "N/A", "v": 0, "P": 0, "p": 0}
 
     def on_message(self, ws, message):
         data = json.loads(message)

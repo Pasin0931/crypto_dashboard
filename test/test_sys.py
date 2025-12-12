@@ -1,6 +1,7 @@
-# 1. Get Current Price
+
 import requests
 
+# # 1. Get Current Price
 # url = "https://api.binance.com/api/v3/ticker/price"
 # params = {"symbol": "BTCUSDT"}
 # response = requests.get(url, params=params)
