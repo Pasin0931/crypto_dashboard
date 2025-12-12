@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, OptionMenu, StringVar
 
 from libs.widget_lib import System, Widget, Label, Button, Frame
+# from libs.lib_socket import socket
 
 operator = System()
 this_root = operator.initiate()

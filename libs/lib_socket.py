@@ -44,11 +44,3 @@ class socket:
         thread = threading.Thread(target=ws.run_forever, daemon=True)
         thread.start()
         return ws
-        
-# ws_url = "wss://stream.binance.com:9443/ws/btcusdt@ticker"
-
-coin1 = socket("wss://stream.binance.com:9443/ws/btcusdt@ticker", "BTC-USDT")
-# coin2 = socket("wss://stream.binance.com:9443/ws/ethusdt@ticker", "ETH-USDT")
-
-coin1.setup_n_start_normal()
-coin1.setup_n_start_threading()
