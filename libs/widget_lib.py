@@ -9,7 +9,7 @@ class System:
         root = tk.Tk()
         root.config(bg="#252526")
         root.title("My Crypto")
-        root.geometry("1070x630") # resize window
+        root.geometry("1300x890") # resize window
         return root
     
 class Widget:
@@ -25,8 +25,12 @@ class Label(Widget):
     def __init__(self, root):
         super().__init__(root)
     
-    def create_label(self, msg, s, st):
-        this_label = ttk.Label(self.root, text=msg)
+    def create_label(self, in_, msg, s, st):
+        if in_ == None:
+            r_ = self.root
+        else:
+            r_ = in_
+        this_label = ttk.Label(r_, text=msg)
         this_label.config(style='Big.TLabel', font=('Helvetica', s, st)) # normal/bold
         this_label.config(background="#252526", foreground="white")
         self.all_widgets.append(this_label)
@@ -36,8 +40,12 @@ class Button(Widget):
     def __init__(self, root):
         super().__init__(root)
 
-    def create_button(self, msg, comm):
-        this_button = ttk.Button(self.root, text=msg, command=comm)
+    def create_button(self, in_, msg, comm):
+        if in_ == None:
+            r_ = self.root
+        else:
+            r_ = in_
+        this_button = ttk.Button(r_, text=msg, command=comm)
         this_button.config(style="Crypto.TButton")
         style = ttk.Style()
         style.configure("Crypto.TButton", background="#1E1E1E", foreground="#000000")
@@ -48,8 +56,12 @@ class Frame(Widget):
     def __init__(self, root):
         super().__init__(root)
             
-    def create_frame(self, r, bw, pd, w, h):
-        this_frame = ttk.Frame(relief=r, borderwidth=bw, padding=pd, width=w, height=h)
+    def create_frame(self, in_, r, bw, pd, w, h):
+        if in_ == None:
+            r_ = self.root
+        else:
+            r_ = in_
+        this_frame = ttk.Frame(r_, relief=r, borderwidth=bw, padding=pd, width=w, height=h)
         this_frame.config(style="Crypto.TFrame")
         style = ttk.Style()
         style.configure("Crypto.TFrame", background="#1E1E1E")
