@@ -8,6 +8,9 @@ class socket:
         self.name = name
         self.coin_data = {"s": "N/A", "c": "N/A", "v": 0, "P": 0, "p": 0}
 
+        self.is_running = False
+        self.ws = None
+
         self.update_callback = None # --
 
     def on_message(self, ws, message):
@@ -39,16 +42,32 @@ class socket:
         ws.run_forever()
 
     def setup_n_start_threading(self):
-        ws = websocket.WebSocketApp(
+        ws_ = websocket.WebSocketApp(
             self.url,
             on_message=self.on_message,
             on_error=self.on_error,
             on_close=self.on_close,
             on_open=self.on_open
         )
-        thread = threading.Thread(target=ws.run_forever, daemon=True)
+        thread = threading.Thread(target=ws_.run_forever, daemon=True)
         thread.start()
-        return ws
 
-    def set_update_callback(self, callback_function):
-        self.update_callback = callback_function
+        self.ws = ws_
+        self.is_running = True
+
+        return ws_
+
+    def set_update_callback(self, callback_function):  # --
+        self.update_callback = callback_function       # --
+
+    def stop_socket(self):
+        try:
+            self.running = False
+            self.is_running = False
+            if self.ws:
+                self.ws.close()
+                self.ws = None
+            print(f"Socket stopped for {self.name}")
+
+        except Exception as e:
+            print(f"Error while stopping socket: {e}")

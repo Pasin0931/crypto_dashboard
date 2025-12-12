@@ -4,12 +4,39 @@ from tkinter import ttk, OptionMenu, StringVar
 from libs.widget_lib import System, Widget, Label, Button, Frame
 from libs.lib_socket import socket
 
-def update_live_ui(data):   # Upadte token data real time
+def update_live_ui(data):   # Update token data real time
     live_coin.config(text=data["s"])
     live_price.config(text=f"${float(data['c']):.3f}")
     live_volume.config(text=f"Volume: {float(data['v']):.3f}")
     live_change_amount.config(text=f"Change: {float(data['p']):.3f}")
     live_change_percent.config(text=f"Change (%): {data['P']}%")
+
+def on_dropdown_change(selected):
+    global token_
+
+    if selected == "BTC/USDT":
+        new_url = "wss://stream.binance.com:9443/ws/btcusdt@ticker"
+
+    elif selected == "ETH/USDT":
+        new_url = "wss://stream.binance.com:9443/ws/ethusdt@ticker"
+
+    elif selected == "BNB/USDT":
+        new_url = "wss://stream.binance.com:9443/ws/bnbusdt@ticker"
+
+    elif selected == "XRP/USDT":
+        new_url = "wss://stream.binance.com:9443/ws/xrpusdt@ticker"
+
+    elif selected == "SOL/USDT":
+        new_url = "wss://stream.binance.com:9443/ws/solusdt@ticker"
+
+    elif selected == "ADA/USDT":
+        new_url = "wss://stream.binance.com:9443/ws/adausdt@ticker"
+
+    token_.stop_socket()
+    token_ = socket(new_url, selected)
+    token_.set_update_callback(update_live_ui)
+    token_.setup_n_start_threading()
+    print(f"Token change to {selected}")
 
 operator = System()
 this_root = operator.initiate()
@@ -19,7 +46,7 @@ label = Label(this_root)
 button = Button(this_root)
 frame = Frame(this_root)
 
-token_ = socket("wss://stream.binance.com:9443/ws/btcusdt@ticker", "BTC-USDT")
+token_ = socket("wss://stream.binance.com:9443/ws/btcusdt@ticker", "BTC-USDT")  # Default token
 
 # ----------------------------------- header
 header_ = label.create_label(None, "BTC/UTC Dashboard", 20, "bold")
@@ -51,8 +78,8 @@ b1 = button.create_button(left_panel, "Reload", None)
 b1.pack(ipadx=32, pady=(18,0))
 
 # Dropdown
-dropdown_var = StringVar(value="BTC")
-dropdown_1 = OptionMenu(left_panel, dropdown_var, "BTC/USDT","ETH/USDT","BNB/USDT","XRP/USDT","SOL/USDT")
+dropdown_var = StringVar(value="BTC/USDT")
+dropdown_1 = OptionMenu(left_panel, dropdown_var, "BTC/USDT","ETH/USDT","BNB/USDT","XRP/USDT","SOL/USDT","ADA/USDT", command=on_dropdown_change)
 dropdown_1.config(width=16, bg="#1E1E1E", fg="white", highlightthickness=0)
 dropdown_1.pack(pady=(18, 18))
 
