@@ -52,14 +52,14 @@ token_ = socket("wss://stream.binance.com:9443/ws/btcusdt@ticker", "BTC-USDT")  
 header_ = label.create_label(None, "BTC/UTC Dashboard", 20, "bold")
 header_.pack(anchor="ne", padx=50, pady=(38, 5))
 
-sub_header = label.create_label(None, "This dashboard shows the value of bitcoin value", 12, "normal")
+sub_header = label.create_label(None, "This dashboard shows the data of bitcoin token", 12, "normal")
 sub_header.pack(anchor="ne", padx=50, pady=(0, 20))
 
 # ----------------------------------- frame for left/right side
 main = frame.create_frame(None, "flat", 0, None, 0, 0)
 main.pack(fill="both", expand=True, padx=10)
 
-# ----------------------------------- bottom (transactions)
+# ============================================================================================================================================================ bottom (transactions)
 bottom_pannel = frame.create_frame(main, "flat", 0, None, 260, 0)
 bottom_pannel.pack(side="bottom", fill="both", expand=False)
 
@@ -69,7 +69,7 @@ transaction.pack(side="left", anchor="n", padx=0, pady=(0,70))
 transaction_ui = frame.create_frame(bottom_pannel, "ridge", 10, None, 800, 80)
 transaction_ui.pack(anchor="n", pady=(0,25), expand=False)
 
-# ----------------------------------- left side
+# ============================================================================================================================================================ left side
 left_panel = frame.create_frame(main, "flat", 0, None, 260, 0)
 left_panel.pack(side="left", anchor="n", padx=(35,0), pady=10)
 
@@ -92,7 +92,7 @@ left_col = frame.create_frame(live_box, "flat", 0, None, 0, 0)
 left_col.pack(side="left", anchor="nw", padx=10, pady=5)
 
 right_col = frame.create_frame(live_box, "flat", 0, None, 0, 0)
-right_col.pack(side="left", anchor="nw", padx=20, pady=5)
+right_col.pack(side="left", anchor="nw", padx=10, pady=5)
 
 # ---------------- LEFT
 # Coin label
@@ -121,17 +121,52 @@ live_change_percent.pack(anchor="w", pady=2)
 
 # ------------------------------------------------------------------------------------------------------------------
 
-# Bid and Sell Panels
+# ---------------- Bid and Sell Panels
 bid_sell_container = frame.create_frame(left_panel, "flat", 0, None, 0, 0)
-bid_sell_container.pack(pady=20)
+bid_sell_container.pack(pady=(10,0))
 
-bid_ = frame.create_frame(bid_sell_container, "ridge", 10, None, 260, 310)
+order_header = label.create_label(bid_sell_container, "Order-Book Snapshot", 12, "bold")
+order_header.pack(pady=(0,7))
+
+# --------------------------------------------------------------- ORDERRRRR
+bid_ = frame.create_frame(bid_sell_container, "ridge", 10, None, 260, 322)   # -------- LEFT
 bid_.pack(side="left", padx=10)
 
-sell_ = frame.create_frame(bid_sell_container, "ridge", 10, None, 260, 310)
-sell_.pack(side="left", padx=10)
+bids_topic = label.create_label(bid_, "BIDS (HIGHEST price to LOWEST price)", 8, "bold")
+bids_topic.config(foreground="Green")
+bids_topic.pack(pady=(0,5))
 
-# ----------------------------------- right side
+l_bids = frame.create_frame(bid_, "flat", 0, None, 0, 0)
+l_bids.pack(side="left", fill="both")
+
+lab_l_bids_topic = label.create_label(l_bids, "Price", 8, "normal").pack(fill="both")
+
+r_bids = frame.create_frame(bid_, "flat", 0, None, 0, 0)
+r_bids.pack(side="right")
+
+lab_l_bids_topic = label.create_label(r_bids, "Quantity", 8, "normal").pack(fill="both")
+
+# --------------------------------------------------------------- SELLSSSSS
+sell_ = frame.create_frame(bid_sell_container, "ridge", 10, None, 260, 322)   # -------- RIGHT
+sell_.pack(side="right", padx=10)
+
+sells_topic = label.create_label(sell_, "SELLS (LOWEST price to HIGHEST price)", 8, "bold")
+sells_topic.config(foreground="red")
+sells_topic.pack(pady=(0,5))
+
+l_sells = frame.create_frame(sell_, "flat", 0, None, 0, 0)
+l_sells.pack(side="left")
+
+lab_l_sells_topic = label.create_label(l_sells, "Price", 8, "normal").pack(fill="both")
+
+r_sells = frame.create_frame(sell_, "flat", 0, None, 0, 0)
+r_sells.pack(side="right")
+
+lab_l_sells_topic = label.create_label(r_sells, "Quantity", 8, "normal").pack(fill="both")
+
+# ------------------------------------------------------------------------------------------------------------------
+
+# ============================================================================================================================================================ right side
 right_pannel = frame.create_frame(main, "flat", 0, None, 260, 0)
 right_pannel.pack(side="right", anchor="n", padx=25, pady=10)
 

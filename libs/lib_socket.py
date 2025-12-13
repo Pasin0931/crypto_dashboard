@@ -17,7 +17,7 @@ class socket:
         data = json.loads(message)
         self.coin_data = data
         # print(data)
-        print(f"BTC Price: ${data['c']}")
+        print(f"{self.name} Price: ${data['c']}")
 
         if self.update_callback:         # --
             self.update_callback(data)   # --

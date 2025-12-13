@@ -34,15 +34,19 @@ class token_data:
         response = requests.get(url, params=params)
         data = response.json()
 
-        print(data["bids"])            # Get all bids
+        # print(data["bids"])            # Get all bids
 
-        print("Top 5 Bids (Buy Orders):")
-        for price, quantity in data['bids'][:5]:
-            print(f"  Price: ${price}, Quantity: {quantity} BTC")
+        # print("Top 5 Bids (Buy Orders):")
+        # for price, quantity in data['bids'][:8]:
+        #     print(f"  Price: ${price}, Quantity: {quantity} BTC")
 
-        print("\nTop 5 Asks (Sell Orders):")
-        for price, quantity in data['asks'][:5]:
-            print(f"  Price: ${price}, Quantity: {quantity} BTC")
+        # print("\nTop 5 Asks (Sell Orders):")
+        # for price, quantity in data['asks'][:8]:
+        #     print(f"  Price: ${price}, Quantity: {quantity} BTC")
+
+        set_data = {"bids": sorted(data["bids"][:8]).reverse(), "sells": sorted(data["asks"][:8]).reverse()}
+        print(set_data)
+        # return set_data
 
     def get_recent_trades(self):
         # 4. Get Recent Trades

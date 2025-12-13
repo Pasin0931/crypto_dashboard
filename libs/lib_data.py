@@ -10,8 +10,9 @@ class token_data:
         params = {"symbol": self.token_symbol}
         response = requests.get(url, params=params)
         this_res = response.json()
-        print(this_res)                  # Get real time price
+        # print(this_res)                  # Get real time price
         # {"symbol": "BTCUSDT", "price": "95234.50"}
+        return this_res
 
     def get_24H_static(self):
         # 2. Get 24-Hour Statistics
@@ -20,12 +21,13 @@ class token_data:
         response = requests.get(url, params=params)
         data = response.json()
         # print(data)                                    # Get statistic
-        # -------------------------
-        print(f"Price: ${data['lastPrice']}")
-        print(f"24h Change: {data['priceChangePercent']}%")
-        print(f"24h Volume: {data['volume']} BTC")
-        print(f"High: ${data['highPrice']}")
-        print(f"Low: ${data['lowPrice']}")
+        # # -------------------------
+        # print(f"Price: ${data['lastPrice']}")
+        # print(f"24h Change: {data['priceChangePercent']}%")
+        # print(f"24h Volume: {data['volume']} BTC")
+        # print(f"High: ${data['highPrice']}")
+        # print(f"Low: ${data['lowPrice']}")
+        return data
 
     def get_order_book_depth(self):
         # 3. Get Order Book Depth
@@ -34,15 +36,17 @@ class token_data:
         response = requests.get(url, params=params)
         data = response.json()
 
-        print(data["bids"])            # Get all bids
+        # print(data["bids"])            # Get all bids
 
-        print("Top 5 Bids (Buy Orders):")
-        for price, quantity in data['bids'][:5]:
-            print(f"  Price: ${price}, Quantity: {quantity} BTC")
+        # print("Top 5 Bids (Buy Orders):")
+        # for price, quantity in data['bids'][:5]:
+        #     print(f"  Price: ${price}, Quantity: {quantity} BTC")
 
-        print("\nTop 5 Asks (Sell Orders):")
-        for price, quantity in data['asks'][:5]:
-            print(f"  Price: ${price}, Quantity: {quantity} BTC")
+        # print("\nTop 5 Asks (Sell Orders):")
+        # for price, quantity in data['asks'][:5]:
+        #     print(f"  Price: ${price}, Quantity: {quantity} BTC")
+
+        return data
 
     def get_recent_trades(self):
         # 4. Get Recent Trades
@@ -50,9 +54,12 @@ class token_data:
         params = {"symbol": "BTCUSDT", "limit": 5}
         response = requests.get(url, params=params)
 
-        for trade in response.json():
-            side = "BUY" if trade['isBuyerMaker'] else "SELL"
-            print(f"{side}: {trade['qty']} BTC @ ${trade['price']}")
+        # for trade in response.json():
+        #     side = "BUY" if trade['isBuyerMaker'] else "SELL"
+        #     print(f"{side}: {trade['qty']} BTC @ ${trade['price']}")
+
+        data = response.json
+        return data
 
     def get_candle_stick_data(self):
         # 5. Get Candlestick (Kline) Data
@@ -64,14 +71,17 @@ class token_data:
         }
         response = requests.get(url, params=params)
 
-        for candle in response.json():
-            timestamp = candle[0]
-            open_price = candle[1]
-            high = candle[2]
-            low = candle[3]
-            close = candle[4]
-            volume = candle[5]
-            print(f"Open: ${open_price}, High: ${high}, Low: ${low}, Close: ${close}")
+        # for candle in response.json():
+        #     timestamp = candle[0]
+        #     open_price = candle[1]
+        #     high = candle[2]
+        #     low = candle[3]
+        #     close = candle[4]
+        #     volume = candle[5]
+        #     print(f"Open: ${open_price}, High: ${high}, Low: ${low}, Close: ${close}")
+
+        this_candle = response.json()
+        return this_candle
 
 # this__ = token_data("BTCUSDT")
 # this__.get_current_price()
