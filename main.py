@@ -88,32 +88,35 @@ dropdown_1.pack(pady=(18, 18))
 live_box = frame.create_frame(left_panel, "ridge", 2, None, 0, 100)
 live_box.pack()
 
-left_col = tk.Frame(live_box, bg="#1E1E1E")
+left_col = frame.create_frame(live_box, "flat", 0, None, 0, 0)
 left_col.pack(side="left", anchor="nw", padx=10, pady=5)
 
-right_col = tk.Frame(live_box, bg="#1E1E1E")
+right_col = frame.create_frame(live_box, "flat", 0, None, 0, 0)
 right_col.pack(side="left", anchor="nw", padx=20, pady=5)
 
 # ---------------- LEFT
 # Coin label
-live_coin = tk.Label(left_col, text=token_.coin_data["s"], bg="#1E1E1E", fg="#AAAAAA", font=("Helvetica", 11, "bold"))
+live_coin = label.create_label(left_col, token_.coin_data["s"], 11, "bold")
+live_coin.config(foreground="#AAAAAA")
 live_coin.pack(anchor="w")
 
 # Price
-live_price = tk.Label(left_col, text=token_.coin_data["c"], bg="#1E1E1E", fg="white", font=("Helvetica", 18, "bold"))
+live_price = label.create_label(left_col, token_.coin_data["c"], 18, "bold")
 live_price.pack(anchor="w")
 
 # ---------------- RIGHT
 # Volume
-live_volume = tk.Label(right_col, text=f"Volume: {token_.coin_data['v']}", bg="#1E1E1E", fg="#AAAAAA", font=("Helvetica", 10))
+live_volume = label.create_label(right_col, f"Volume: {token_.coin_data['v']}", 10, "normal")
+live_volume.config(foreground="#AAAAAA")
 live_volume.pack(anchor="w", pady=2)
 
 # Change amount
-live_change_amount = tk.Label(right_col, text=f"Change: {token_.coin_data['p']}", bg="#1E1E1E", fg="white", font=("Helvetica", 10))
+live_change_amount = label.create_label(right_col, f"Change: {token_.coin_data['p']}", 10, "normal")
 live_change_amount.pack(anchor="w", pady=2)
 
 # Change percent
-live_change_percent = tk.Label(right_col, text=f"Change %: {token_.coin_data['P']}", bg="#1E1E1E", fg="#AAAAAA", font=("Helvetica", 10))
+live_change_percent = label.create_label(right_col, f"Change %: {token_.coin_data['P']}", 10, "normal")
+live_change_percent.config(foreground="#AAAAAA")
 live_change_percent.pack(anchor="w", pady=2)
 
 # ------------------------------------------------------------------------------------------------------------------
