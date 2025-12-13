@@ -54,15 +54,20 @@ class token_data:
     def get_recent_trades(self):
         # 4. Get Recent Trades
         url = "https://api.binance.com/api/v3/trades"
-        params = {"symbol": "BTCUSDT", "limit": 5}
+        params = {"symbol": self.token_symbol, "limit": 5}
         response = requests.get(url, params=params)
 
         # for trade in response.json():
         #     side = "BUY" if trade['isBuyerMaker'] else "SELL"
         #     print(f"{side}: {trade['qty']} BTC @ ${trade['price']}")
 
-        data = response.json
-        return data
+        data = response.json()
+        wanted_data = []
+
+        for i in data:
+            wanted_data.append([i['price'], i['qty']])
+
+        return wanted_data
 
     def get_candle_stick_data(self):
         # 5. Get Candlestick (Kline) Data
@@ -90,5 +95,5 @@ class token_data:
 # this__.get_current_price()
 # this__.get_24H_static()
 # this__.get_order_book_depth()
-# this__.get_recent_trades()
+# print(this__.get_recent_trades())
 # this__.get_candle_stick_data()

@@ -9,7 +9,7 @@ class System:
         root = tk.Tk()
         root.config(bg="#252526")
         root.title("My Crypto")
-        root.geometry("1300x890") # resize window
+        root.geometry("1300x920") # resize window
         return root
     
     def clean_bid_sale(self, list_order):

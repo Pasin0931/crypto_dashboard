@@ -81,6 +81,39 @@ def reload_book_order():
     place_holder_bid_sale('bids', data_token)
     place_holder_bid_sale('sells', data_token)
 
+def load_recent_trades():
+    for w in l_tr.winfo_children()[1:]:
+        w.destroy()
+    for w in r_tr.winfo_children()[1:]:
+        w.destroy()
+
+    trades = data_token.get_recent_trades()
+
+    last_price = None
+
+    for price, qty in trades:
+        price_f = float(price)
+
+        if last_price is None:  # latest price
+            color = "#AAAAAA"
+        elif price_f > last_price:
+            color = "green"
+        else:
+            color = "red"
+
+        q = label.create_label(l_tr, f"{float(price):.3f}", 8, "normal")
+        q.pack(anchor="w", padx=100, pady=2)
+        p = label.create_label(r_tr, qty, 8, "normal")
+        p.pack(anchor="e", padx=100, pady=2)
+
+        p.config(foreground=color)
+        q.config(foreground=color)
+
+        p.pack(anchor="center", pady=2)
+        q.pack(anchor="center", pady=2)
+
+        last_price = price_f
+
 def update_live_ui(data):
     ws_queue.put(data)
 
@@ -99,12 +132,21 @@ def process_ws_data():
         live_change_percent.config(text=f"Change (%): {data['P']}%")
 
         reload_book_order()
+        update_24h_stats()
+        load_recent_trades()
 
         # ----------------- Update on graph part
         price_graph.update(price)
         volume_graph.update(volume)
 
     this_root.after(200, process_ws_data)
+
+def update_24h_stats():
+    stats = data_token.get_24H_static()
+    label_24h_change.config(text=f"24h Change: {stats['priceChangePercent']}%")
+    label_24h_volume.config(text=f"24h Volume: {float(stats['volume']):.3f} {data_token.token_symbol}")
+    label_24h_high.config(text=f"High: ${stats['highPrice']}")
+
 
 operator = System()
 this_root = operator.initiate()
@@ -121,11 +163,19 @@ token_live = socket("wss://stream.binance.com:9443/ws/btcusdt@ticker", "BTC-USDT
 data_token = token_data("BTCUSDT") # Default token
 
 # ----------------------------------- header
-header_ = label.create_label(None, "BTC/UTC Dashboard", 20, "bold")
+title = frame.create_frame(None, "flat", 0, None, 200, 100)
+title.pack(fill="both")
+
+l_title = frame.create_frame(title, "flat", 0, None, 0, 20)
+l_title.pack(side="left")
+r_title = frame.create_frame(title, "flat", 0, None, 0, 20)
+r_title.pack(side="right")
+
+header_ = label.create_label(r_title, "BTC/UTC Dashboard", 20, "bold")
 header_.pack(anchor="ne", padx=50, pady=(20, 0))
 
-sub_header = label.create_label(None, "This dashboard shows the data of bitcoin token", 12, "normal")
-sub_header.pack(anchor="ne", padx=50, pady=(0, 3))
+sub_header = label.create_label(r_title, "This dashboard shows the data of bitcoin token", 12, "normal")
+sub_header.pack(anchor="ne", padx=50, pady=(0, 5))
 
 # ----------------------------------- frame for left/right side
 main = frame.create_frame(None, "flat", 0, None, 0, 0)
@@ -235,27 +285,32 @@ place_holder_bid_sale('sells', data_token)
 lb_container = frame.create_frame(left_panel, "ridge", 0, None, 0, 180)
 lb_container.pack(pady=(11,0), padx=(9,9), fill="both")
 
-l_lb = frame.create_frame(lb_container, "ridge", 0, None, 0, 100)  ## -----------
-l_lb.pack()
+l_lb = frame.create_frame(lb_container, "ridge", 0, None, 0, 100)
+l_lb.pack(padx=10)
 
-change24hr = label.create_label(l_lb, f"24h Change: {data_token.get_24H_static()['priceChangePercent']}%", 8, "normal").pack(pady=(0,7))
-volume24hr = label.create_label(l_lb, f"24h Volume: {float(data_token.get_24H_static()['volume']):.3f} {data_token.token_symbol}", 8, "normal").pack(pady=(0,7))
-highPrice = label.create_label(l_lb, f"High: ${data_token.get_24H_static()['highPrice']}", 8, "normal").pack(pady=(0,10))
+label_24h_change = label.create_label(l_lb, "24h Change: --", 8, "normal")
+label_24h_change.pack(pady=(6,7))
+
+label_24h_volume = label.create_label(l_lb, "24h Volume: --", 8, "normal")
+label_24h_volume.pack(pady=(0,7))
+
+label_24h_high = label.create_label(l_lb, "High: --", 8, "normal")
+label_24h_high.pack(pady=(0,10))
 
 # ------------------------------------------------------------------------------------------------------------------
 header_tr = label.create_label(left_panel, "Trading Feed",12, "bold").pack(pady=(10,0))
 
-recent_trade = frame.create_frame(left_panel, "ridge", 0, None, 0, 180)    # ---- Recent Trade
-recent_trade.pack(pady=(8,0), padx=(9,9), fill="both")
+recent_trade = frame.create_frame(left_panel, "ridge", 0, None, 100, 500)    # ---- Recent Trade
+recent_trade.pack(pady=(8,0), padx=(9,9))
 
 l_tr = frame.create_frame(recent_trade, "ridge", 0, None, 0, 100)  ## -----------
-l_tr.pack(side="left")
+l_tr.pack(side="left", expand=True, fill="both")
 
 r_tr = frame.create_frame(recent_trade, "ridge", 0, None, 0, 100)  ## -----------
-r_tr.pack(side="right")
+r_tr.pack(side="right", expand=True, fill="both")
 
-change24hr = label.create_label(l_tr, f"24h Change: {data_token.get_24H_static()['priceChangePercent']}%", 8, "normal").pack()
-volume24hr = label.create_label(r_tr, f"24h Volume: {float(data_token.get_24H_static()['volume']):.3f} {data_token.token_symbol}", 8, "normal").pack()
+change24hr = label.create_label(l_tr, "Price", 8, "bold").pack(padx=(10,0), pady=(5, 2))
+volume24hr = label.create_label(r_tr, "Quantity", 8, "bold").pack(padx=(0,10), pady=(5, 2))
 
 # ------------------------------------------------------------------------------------------------------------------ ### Bottom container ###
 
