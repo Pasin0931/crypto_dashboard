@@ -80,6 +80,6 @@ class token_data:
 this__ = token_data("BTCUSDT")
 # this__.get_current_price()
 # this__.get_24H_static()
-this__.get_order_book_depth()
+# this__.get_order_book_depth()
 # this__.get_recent_trades()
-# this__.get_candle_stick_data()
+this__.get_candle_stick_data()

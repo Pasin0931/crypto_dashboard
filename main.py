@@ -166,7 +166,7 @@ bid_sell_container = frame.create_frame(left_panel, "flat", 0, None, 0, 0)
 bid_sell_container.pack(pady=(10,0))
 
 order_header = label.create_label(bid_sell_container, "Order-Book Snapshot", 12, "bold")
-order_header.pack(pady=(0,7))
+order_header.pack(pady=(0,11))
 
 # --------------------------------------------------------------- ORDERRRRR
 bid_ = frame.create_frame(bid_sell_container, "ridge", 10, None, 260, 322)   # -------- LEFT
@@ -210,6 +210,11 @@ place_holder_bid_sale('sells', data_token)
 
 # ------------------------------------------------------------------------------------------------------------------
 
+lb_container = frame.create_frame(left_panel, "ridge", 0, None, 0, 50)
+lb_container.pack(pady=(11,0), padx=(9,9), fill="both")
+
+# ------------------------------------------------------------------------------------------------------------------
+
 # ============================================================================================================================================================ right side
 right_pannel = frame.create_frame(main, "flat", 0, None, 260, 0)
 right_pannel.pack(side="right", anchor="n", padx=25, pady=10)
@@ -220,7 +225,7 @@ charts.pack(side="left", fill="both", expand=True, padx=25, pady=(18,0))
 main_chart = frame.create_frame(charts, "ridge", 10, None, 650, 360)
 main_chart.pack(anchor="n", pady=10)
 
-second_chart = frame.create_frame(charts, "ridge", 10, None, 650, 135)
+second_chart = frame.create_frame(charts, "ridge", 10, None, 650, 139)
 second_chart.pack(anchor="n", pady=1)
 
 # ----------------------------------- close buton
