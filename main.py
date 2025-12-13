@@ -39,6 +39,13 @@ def on_dropdown_change(selected):
     token_live = socket(new_url, selected)
     token_live.set_update_callback(update_live_ui)
     token_live.setup_n_start_threading()
+
+    token_name = selected.replace("/","")
+    # print(token_name)
+    data_token.token_symbol = token_name
+    print(data_token.token_symbol)
+    reload_book_order()
+
     print(f"Token change to {selected}")
 
 def place_holder_bid_sale(option, data):
