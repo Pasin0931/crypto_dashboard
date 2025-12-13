@@ -18,6 +18,15 @@ class System:
                 for z in j:
                     # print(z)
                     z.destroy()
+        list_order = {"left": [], "right": []}
+        return list_order
+    
+    # def on_reload(self, list_order):
+    #     # print("Hellooo")
+    #     self.clean_bid_sale(list_order)
+    #     print("reloaded")
+        
+        
     
 class Widget:
     def __init__(self, root):

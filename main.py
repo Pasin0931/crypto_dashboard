@@ -45,8 +45,7 @@ def place_holder_bid_sale(option, data):
     this_data_token = data.get_order_book_depth()
     bi = this_data_token['bids']
     sel = this_data_token['sells']
-    # print(bi)
-    # print(sel)
+    print("Book order updated")
 
     if option == "bids":
         for i in bi:
@@ -64,6 +63,12 @@ def place_holder_bid_sale(option, data):
             displaying_data["right"].append([b_1,b_2])
     # print(displaying_data)
 
+def reload_book_order():
+    global displaying_data
+    displaying_data = operator.clean_bid_sale(displaying_data)
+    place_holder_bid_sale('bids', data_token)
+    place_holder_bid_sale('sells', data_token)
+
 operator = System()
 this_root = operator.initiate()
 
@@ -74,7 +79,7 @@ frame = Frame(this_root)
 
 token_live = socket("wss://stream.binance.com:9443/ws/btcusdt@ticker", "BTC-USDT")  # Default token
 
-data_token = token_data("BTCUSDT")
+data_token = token_data("BTCUSDT") # Default token
 
 # ----------------------------------- header
 header_ = label.create_label(None, "BTC/UTC Dashboard", 20, "bold")
@@ -102,7 +107,7 @@ left_panel = frame.create_frame(main, "flat", 0, None, 260, 0)
 left_panel.pack(side="left", anchor="n", padx=(35,0), pady=10)
 
 # Buttons
-b1 = button.create_button(left_panel, "Reload", None)
+b1 = button.create_button(left_panel, "Reload", reload_book_order)
 b1.pack(ipadx=32, pady=(18,0))
 
 # Dropdown
@@ -173,7 +178,6 @@ r_bids = frame.create_frame(bid_, "flat", 0, None, 0, 0)
 r_bids.pack(side="right")
 
 lab_l_bids_topic = label.create_label(r_bids, "Quantity", 8, "normal").pack(fill="both")
-
 place_holder_bid_sale('bids', data_token)
 
 # --------------------------------------------------------------- SELLSSSSS
@@ -195,7 +199,7 @@ r_sells.pack(side="right")
 lab_l_sells_topic = label.create_label(r_sells, "Quantity", 8, "normal").pack(fill="both")
 place_holder_bid_sale('sells', data_token)
 
-operator.clean_bid_sale(displaying_data)
+# displaying_data = operator.clean_bid_sale(displaying_data)
 
 # ------------------------------------------------------------------------------------------------------------------
 
