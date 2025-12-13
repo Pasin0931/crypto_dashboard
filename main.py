@@ -1,18 +1,20 @@
 import tkinter as tk
 from tkinter import ttk, OptionMenu, StringVar
+from queue import Queue
 
 from libs.widget_lib import System, Widget, Label, Button, Frame
 from libs.lib_socket import socket
 from libs.lib_data import token_data
+from libs.matplot_lib import LiveGraph
 
 displaying_data = {"left": [], "right": []}
 
-def update_live_ui(data):   # Update token data real time
-    live_coin.config(text=data["s"])
-    live_price.config(text=f"${float(data['c']):.3f}")
-    live_volume.config(text=f"Volume: {float(data['v']):.3f}")
-    live_change_amount.config(text=f"Change: {float(data['p']):.3f}")
-    live_change_percent.config(text=f"Change (%): {data['P']}%")
+# def update_live_ui(data):   # Update token data real time
+#     live_coin.config(text=data["s"])
+#     live_price.config(text=f"${float(data['c']):.3f}")
+#     live_volume.config(text=f"Volume: {float(data['v']):.3f}")
+#     live_change_amount.config(text=f"Change: {float(data['p']):.3f}")
+#     live_change_percent.config(text=f"Change (%): {data['P']}%")
 
 def on_dropdown_change(selected):
     global token_live
@@ -46,13 +48,16 @@ def on_dropdown_change(selected):
     print(data_token.token_symbol)
     reload_book_order()
 
+    price_graph.clear()
+    volume_graph.clear()
+
     print(f"Token change to {selected}")
 
 def place_holder_bid_sale(option, data):
     this_data_token = data.get_order_book_depth()
     bi = this_data_token['bids']
     sel = this_data_token['sells']
-    print("Book order updated")
+    # print("Book order updated")
 
     if option == "bids":
         for i in bi:
@@ -76,6 +81,31 @@ def reload_book_order():
     place_holder_bid_sale('bids', data_token)
     place_holder_bid_sale('sells', data_token)
 
+def update_live_ui(data):
+    ws_queue.put(data)
+
+def process_ws_data():
+    while not ws_queue.empty():
+        data = ws_queue.get()
+
+        price = float(data["c"])
+        volume = float(data["v"])
+
+        # ----------------- Update on label part
+        live_coin.config(text=data["s"])
+        live_price.config(text=f"${price:.3f}")
+        live_volume.config(text=f"Volume: {volume:.3f}")
+        live_change_amount.config(text=f"Change: {float(data['p']):.3f}")
+        live_change_percent.config(text=f"Change (%): {data['P']}%")
+
+        reload_book_order()
+
+        # ----------------- Update on graph part
+        price_graph.update(price)
+        volume_graph.update(volume)
+
+    this_root.after(200, process_ws_data)
+
 operator = System()
 this_root = operator.initiate()
 
@@ -84,30 +114,22 @@ label = Label(this_root)
 button = Button(this_root)
 frame = Frame(this_root)
 
+ws_queue = Queue()
+
 token_live = socket("wss://stream.binance.com:9443/ws/btcusdt@ticker", "BTC-USDT")  # Default token
 
 data_token = token_data("BTCUSDT") # Default token
 
 # ----------------------------------- header
 header_ = label.create_label(None, "BTC/UTC Dashboard", 20, "bold")
-header_.pack(anchor="ne", padx=50, pady=(38, 5))
+header_.pack(anchor="ne", padx=50, pady=(20, 0))
 
 sub_header = label.create_label(None, "This dashboard shows the data of bitcoin token", 12, "normal")
-sub_header.pack(anchor="ne", padx=50, pady=(0, 20))
+sub_header.pack(anchor="ne", padx=50, pady=(0, 3))
 
 # ----------------------------------- frame for left/right side
 main = frame.create_frame(None, "flat", 0, None, 0, 0)
-main.pack(fill="both", expand=True, padx=10)
-
-# ============================================================================================================================================================ bottom (transactions)
-bottom_pannel = frame.create_frame(main, "flat", 0, None, 260, 0)
-bottom_pannel.pack(side="bottom", fill="both", expand=False)
-
-transaction = frame.create_frame(bottom_pannel, "flat", 0, None, 0, 0)
-transaction.pack(side="left", anchor="n", padx=0, pady=(0,70))
-
-transaction_ui = frame.create_frame(bottom_pannel, "ridge", 10, None, 800, 80)
-transaction_ui.pack(anchor="n", pady=(0,25), expand=False)
+main.pack(fill="both", padx=10, pady=10)
 
 # ============================================================================================================================================================ left side
 left_panel = frame.create_frame(main, "flat", 0, None, 260, 0)
@@ -210,10 +232,14 @@ place_holder_bid_sale('sells', data_token)
 
 # ------------------------------------------------------------------------------------------------------------------
 
-lb_container = frame.create_frame(left_panel, "ridge", 0, None, 0, 50)
+lb_container = frame.create_frame(left_panel, "ridge", 0, None, 0, 180)
 lb_container.pack(pady=(11,0), padx=(9,9), fill="both")
 
 # ------------------------------------------------------------------------------------------------------------------
+
+# ----------------------------------- close buton
+close_button = button.create_button(left_panel, "close", comm=this_root.destroy)
+close_button.pack(anchor="se", padx=30, pady=(20, 40), side="left")
 
 # ============================================================================================================================================================ right side
 right_pannel = frame.create_frame(main, "flat", 0, None, 260, 0)
@@ -228,11 +254,13 @@ main_chart.pack(anchor="n", pady=10)
 second_chart = frame.create_frame(charts, "ridge", 10, None, 650, 139)
 second_chart.pack(anchor="n", pady=1)
 
-# ----------------------------------- close buton
-close_button = button.create_button(None, "close", comm=this_root.destroy)
-close_button.pack(anchor="se", padx=30, pady=(20, 40))
+
+price_graph = LiveGraph(main_chart, title="Live Price", ylabel="Price", size1=6, size2=4)
+
+volume_graph = LiveGraph(second_chart, title="Live Volume", ylabel="Volume", size1=6, size2=2.5)
 
 if __name__ == "__main__":
     token_live.set_update_callback(update_live_ui) # call back to update token data
     token_live.setup_n_start_threading()
+    process_ws_data() # ---
     this_root.mainloop()
