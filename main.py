@@ -3,6 +3,7 @@ from tkinter import ttk, OptionMenu, StringVar
 
 from libs.widget_lib import System, Widget, Label, Button, Frame
 from libs.lib_socket import socket
+from libs.lib_data import token_data
 
 def update_live_ui(data):   # Update token data real time
     live_coin.config(text=data["s"])
@@ -12,7 +13,7 @@ def update_live_ui(data):   # Update token data real time
     live_change_percent.config(text=f"Change (%): {data['P']}%")
 
 def on_dropdown_change(selected):
-    global token_
+    global token_live
 
     if selected == "BTC/USDT":
         new_url = "wss://stream.binance.com:9443/ws/btcusdt@ticker"
@@ -32,11 +33,27 @@ def on_dropdown_change(selected):
     elif selected == "ADA/USDT":
         new_url = "wss://stream.binance.com:9443/ws/adausdt@ticker"
 
-    token_.stop_socket()
-    token_ = socket(new_url, selected)
-    token_.set_update_callback(update_live_ui)
-    token_.setup_n_start_threading()
+    token_live.stop_socket()
+    token_live = socket(new_url, selected)
+    token_live.set_update_callback(update_live_ui)
+    token_live.setup_n_start_threading()
     print(f"Token change to {selected}")
+
+def place_holder_bid_sale(option, data):
+    this_data_token = data.get_order_book_depth()
+    bi = this_data_token['bids']
+    sel = this_data_token['sells']
+    # print(bi)
+    # print(sel)
+
+    if option == "bids":
+        for i in bi:
+            a_1 = label.create_label(l_bids, i[0], 8, "normal").pack(fill="both")
+            a_2 = label.create_label(r_bids, i[1], 8, "normal").pack(fill="both")
+    elif option == "sells":
+        for i in sel:
+            b_1 = label.create_label(l_sells, i[0], 8, "normal").pack(fill="both")
+            b_1 = label.create_label(r_sells, i[1], 8, "normal").pack(fill="both")
 
 operator = System()
 this_root = operator.initiate()
@@ -46,7 +63,9 @@ label = Label(this_root)
 button = Button(this_root)
 frame = Frame(this_root)
 
-token_ = socket("wss://stream.binance.com:9443/ws/btcusdt@ticker", "BTC-USDT")  # Default token
+token_live = socket("wss://stream.binance.com:9443/ws/btcusdt@ticker", "BTC-USDT")  # Default token
+
+data_token = token_data("BTCUSDT")
 
 # ----------------------------------- header
 header_ = label.create_label(None, "BTC/UTC Dashboard", 20, "bold")
@@ -96,26 +115,26 @@ right_col.pack(side="left", anchor="nw", padx=10, pady=5)
 
 # ---------------- LEFT
 # Coin label
-live_coin = label.create_label(left_col, token_.coin_data["s"], 11, "bold")
+live_coin = label.create_label(left_col, token_live.coin_data["s"], 11, "bold")
 live_coin.config(foreground="#AAAAAA")
 live_coin.pack(anchor="w")
 
 # Price
-live_price = label.create_label(left_col, token_.coin_data["c"], 18, "bold")
+live_price = label.create_label(left_col, token_live.coin_data["c"], 18, "bold")
 live_price.pack(anchor="w")
 
 # ---------------- RIGHT
 # Volume
-live_volume = label.create_label(right_col, f"Volume: {token_.coin_data['v']}", 10, "normal")
+live_volume = label.create_label(right_col, f"Volume: {token_live.coin_data['v']}", 10, "normal")
 live_volume.config(foreground="#AAAAAA")
 live_volume.pack(anchor="w", pady=2)
 
 # Change amount
-live_change_amount = label.create_label(right_col, f"Change: {token_.coin_data['p']}", 10, "normal")
+live_change_amount = label.create_label(right_col, f"Change: {token_live.coin_data['p']}", 10, "normal")
 live_change_amount.pack(anchor="w", pady=2)
 
 # Change percent
-live_change_percent = label.create_label(right_col, f"Change %: {token_.coin_data['P']}", 10, "normal")
+live_change_percent = label.create_label(right_col, f"Change %: {token_live.coin_data['P']}", 10, "normal")
 live_change_percent.config(foreground="#AAAAAA")
 live_change_percent.pack(anchor="w", pady=2)
 
@@ -146,6 +165,8 @@ r_bids.pack(side="right")
 
 lab_l_bids_topic = label.create_label(r_bids, "Quantity", 8, "normal").pack(fill="both")
 
+place_holder_bid_sale('bids', data_token)
+
 # --------------------------------------------------------------- SELLSSSSS
 sell_ = frame.create_frame(bid_sell_container, "ridge", 10, None, 260, 322)   # -------- RIGHT
 sell_.pack(side="right", padx=10)
@@ -163,6 +184,7 @@ r_sells = frame.create_frame(sell_, "flat", 0, None, 0, 0)
 r_sells.pack(side="right")
 
 lab_l_sells_topic = label.create_label(r_sells, "Quantity", 8, "normal").pack(fill="both")
+place_holder_bid_sale('sells', data_token)
 
 # ------------------------------------------------------------------------------------------------------------------
 
@@ -184,6 +206,6 @@ close_button = button.create_button(None, "close", comm=this_root.destroy)
 close_button.pack(anchor="se", padx=30, pady=(20, 40))
 
 if __name__ == "__main__":
-    token_.set_update_callback(update_live_ui) # call back to update token data
-    token_.setup_n_start_threading()
+    token_live.set_update_callback(update_live_ui) # call back to update token data
+    token_live.setup_n_start_threading()
     this_root.mainloop()

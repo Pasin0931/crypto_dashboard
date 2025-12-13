@@ -44,7 +44,7 @@ class token_data:
         # for price, quantity in data['asks'][:8]:
         #     print(f"  Price: ${price}, Quantity: {quantity} BTC")
 
-        set_data = {"bids": sorted(data["bids"][:8]).reverse(), "sells": sorted(data["asks"][:8]).reverse()}
+        set_data = {"bids": sorted(data["bids"][:8]).reverse(), "sells": sorted(data["asks"][:8])}
         print(set_data)
         # return set_data
 

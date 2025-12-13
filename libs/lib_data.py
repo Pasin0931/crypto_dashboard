@@ -46,7 +46,10 @@ class token_data:
         # for price, quantity in data['asks'][:5]:
         #     print(f"  Price: ${price}, Quantity: {quantity} BTC")
 
-        return data
+        set_data = {"bids": sorted(data["bids"], reverse=True), "sells": sorted(data["asks"])}
+        # print(set_data)
+        # print("\n", data)
+        return set_data
 
     def get_recent_trades(self):
         # 4. Get Recent Trades
