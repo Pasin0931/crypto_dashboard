@@ -133,11 +133,11 @@ main.pack(fill="both", padx=10, pady=10)
 
 # ============================================================================================================================================================ left side
 left_panel = frame.create_frame(main, "flat", 0, None, 260, 0)
-left_panel.pack(side="left", anchor="n", padx=(35,0), pady=10)
+left_panel.pack(side="left", anchor="n", padx=(40,0), pady=10)
 
-# Buttons
-b1 = button.create_button(left_panel, "Reload", reload_book_order)
-b1.pack(ipadx=32, pady=(18,0))
+# # Buttons
+# b1 = button.create_button(left_panel, "Reload", reload_book_order)
+# b1.pack(ipadx=32, pady=(18,0))
 
 # Dropdown
 dropdown_var = StringVar(value="BTC/USDT")
@@ -255,7 +255,7 @@ second_chart = frame.create_frame(charts, "ridge", 10, None, 650, 139)
 second_chart.pack(anchor="n", pady=1)
 
 
-price_graph = LiveGraph(main_chart, title="Live Price", ylabel="Price", size1=6, size2=4)
+price_graph = LiveGraph(main_chart, title="Live Price ($)", ylabel="Price ($)", size1=6, size2=4)
 
 volume_graph = LiveGraph(second_chart, title="Live Volume", ylabel="Volume", size1=6, size2=2.5)
 
