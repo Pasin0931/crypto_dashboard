@@ -12,6 +12,13 @@ class System:
         root.geometry("1300x890") # resize window
         return root
     
+    def clean_bid_sale(self, list_order):
+        for i in list_order.values():
+            for j in i:
+                for z in j:
+                    # print(z)
+                    z.destroy()
+    
 class Widget:
     def __init__(self, root):
         self.root = root

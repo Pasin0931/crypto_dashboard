@@ -5,6 +5,8 @@ from libs.widget_lib import System, Widget, Label, Button, Frame
 from libs.lib_socket import socket
 from libs.lib_data import token_data
 
+displaying_data = {"left": [], "right": []}
+
 def update_live_ui(data):   # Update token data real time
     live_coin.config(text=data["s"])
     live_price.config(text=f"${float(data['c']):.3f}")
@@ -48,12 +50,19 @@ def place_holder_bid_sale(option, data):
 
     if option == "bids":
         for i in bi:
-            a_1 = label.create_label(l_bids, i[0], 8, "normal").pack(fill="both")
-            a_2 = label.create_label(r_bids, i[1], 8, "normal").pack(fill="both")
+            a_1 = label.create_label(l_bids, i[0], 8, "normal")
+            a_1.pack(fill="both")
+            a_2 = label.create_label(r_bids, i[1], 8, "normal")
+            a_2.pack(fill="both")
+            displaying_data["left"].append([a_1,a_2])
     elif option == "sells":
         for i in sel:
-            b_1 = label.create_label(l_sells, i[0], 8, "normal").pack(fill="both")
-            b_1 = label.create_label(r_sells, i[1], 8, "normal").pack(fill="both")
+            b_1 = label.create_label(l_sells, i[0], 8, "normal")
+            b_1.pack(fill="both")
+            b_2 = label.create_label(r_sells, i[1], 8, "normal")
+            b_2.pack(fill="both")
+            displaying_data["right"].append([b_1,b_2])
+    # print(displaying_data)
 
 operator = System()
 this_root = operator.initiate()
@@ -185,6 +194,8 @@ r_sells.pack(side="right")
 
 lab_l_sells_topic = label.create_label(r_sells, "Quantity", 8, "normal").pack(fill="both")
 place_holder_bid_sale('sells', data_token)
+
+operator.clean_bid_sale(displaying_data)
 
 # ------------------------------------------------------------------------------------------------------------------
 
