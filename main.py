@@ -230,12 +230,34 @@ place_holder_bid_sale('sells', data_token)
 
 # displaying_data = operator.clean_bid_sale(displaying_data)
 
-# ------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------ ### Bottom container ###
 
 lb_container = frame.create_frame(left_panel, "ridge", 0, None, 0, 180)
 lb_container.pack(pady=(11,0), padx=(9,9), fill="both")
 
+l_lb = frame.create_frame(lb_container, "ridge", 0, None, 0, 100)  ## -----------
+l_lb.pack()
+
+change24hr = label.create_label(l_lb, f"24h Change: {data_token.get_24H_static()['priceChangePercent']}%", 8, "normal").pack(pady=(0,7))
+volume24hr = label.create_label(l_lb, f"24h Volume: {float(data_token.get_24H_static()['volume']):.3f} {data_token.token_symbol}", 8, "normal").pack(pady=(0,7))
+highPrice = label.create_label(l_lb, f"High: ${data_token.get_24H_static()['highPrice']}", 8, "normal").pack(pady=(0,10))
+
 # ------------------------------------------------------------------------------------------------------------------
+header_tr = label.create_label(left_panel, "Trading Feed",12, "bold").pack(pady=(10,0))
+
+recent_trade = frame.create_frame(left_panel, "ridge", 0, None, 0, 180)    # ---- Recent Trade
+recent_trade.pack(pady=(8,0), padx=(9,9), fill="both")
+
+l_tr = frame.create_frame(recent_trade, "ridge", 0, None, 0, 100)  ## -----------
+l_tr.pack(side="left")
+
+r_tr = frame.create_frame(recent_trade, "ridge", 0, None, 0, 100)  ## -----------
+r_tr.pack(side="right")
+
+change24hr = label.create_label(l_tr, f"24h Change: {data_token.get_24H_static()['priceChangePercent']}%", 8, "normal").pack()
+volume24hr = label.create_label(r_tr, f"24h Volume: {float(data_token.get_24H_static()['volume']):.3f} {data_token.token_symbol}", 8, "normal").pack()
+
+# ------------------------------------------------------------------------------------------------------------------ ### Bottom container ###
 
 # ----------------------------------- close buton
 close_button = button.create_button(left_panel, "close", comm=this_root.destroy)
