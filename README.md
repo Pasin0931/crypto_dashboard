@@ -51,39 +51,45 @@ Install via pip:
 pip install -r requirement.txt
 ```
 
+## How to run
+Type this on terminal
+```bash
+python main.py
+```
+
 ## Project Requirements & Grading Rubric
 ### Core Requirements
 #### Basic Features
-✅ Application launches without errors
-✅ Clean OOP design with classes
-✅ Proper event handling
-✅ Graceful shutdown (closes WebSockets, no errors)
+- ✅ Application launches without errors
+- ✅ Clean OOP design with classes
+- ✅ Proper event handling
+- ✅ Graceful shutdown (closes WebSockets, no errors)
 
 #### Price Tickers
-✅ At least 3 cryptocurrency tickers (BTC, ETH, SOL)
-✅ Real-time price updates via WebSocket
-✅ Color-coded price changes (green/red)
-✅ Display 24h change and percentage
+- ✅ At least 3 cryptocurrency tickers (BTC, ETH, SOL)
+- ✅ Real-time price updates via WebSocket
+- ✅ Color-coded price changes (green/red)
+- ✅ Display 24h change and percentage
 
 #### User Interface
-✅ Professional, organized layout
-✅ Toggle buttons to show/hide panels
-✅ Responsive to window resizing
-✅ Clear labeling and readability
+- ✅ Professional, organized layout
+- ✅ Toggle buttons to show/hide panels
+- ✅ Responsive to window resizing
+- ✅ Clear labeling and readability
 
 ### Advanced Features
 #### Additional Data Streams
-✅ 24-Hour Volume display
-✅ Order Book (top 10 bids/asks)
-✅ Recent Trades feed
-✅ Candlestick chart with Matplotlib
+- ✅ 24-Hour Volume display
+- ✅ Order Book (top 10 bids/asks)
+- ✅ Recent Trades feed
+- ✅ Candlestick chart with Matplotlib
 
 #### Multiple Assets & Toggles
-✅ Support for 5+ cryptocurrencies
-✅ Individual toggle buttons for each asset
-❌ Saved preferences (remember which panels are visible)
+- ✅ Support for 5+ cryptocurrencies
+- ✅ Individual toggle buttons for each asset
+- ❌ Saved preferences (remember which panels are visible)
 
 #### Information Density
-✅ Displays comprehensive market data
-✅ Multiple panels with different information types
-✅ Efficient use of screen space
+- ✅ Displays comprehensive market data
+- ✅ Multiple panels with different information types
+- ✅ Efficient use of screen space
