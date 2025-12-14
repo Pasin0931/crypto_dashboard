@@ -186,7 +186,7 @@ l_title.pack(side="left")
 r_title = frame.create_frame(title, "flat", 0, None, 0, 20)
 r_title.pack(side="right")
 
-header_ = label.create_label(r_title, "BTC/UTC Dashboard", 20, "bold")
+header_ = label.create_label(r_title, "Bitcoin Dashboard", 20, "bold")
 header_.pack(anchor="ne", padx=50, pady=(20, 0))
 
 sub_header = label.create_label(r_title, "This dashboard shows the data of bitcoin token", 12, "normal")

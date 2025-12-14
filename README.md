@@ -93,3 +93,5 @@ python main.py
 - ✅ Displays comprehensive market data
 - ✅ Multiple panels with different information types
 - ✅ Efficient use of screen space
+
+## Youtube video: https://youtu.be/gQZSQlRQmyc
