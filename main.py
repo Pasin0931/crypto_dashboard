@@ -117,27 +117,38 @@ def close_candle_loop():
     this_root.after(60000, close_candle_loop) # Deplay 60000 sec
     volume_graph.clear() # Clear the volume graph as well
 
+previous_change = None
 def process_ws_data():
+    global previous_change
+
     while not ws_queue.empty():
         data = ws_queue.get()
         price = float(data["c"])
         volume = float(data["v"])
-        
-        # update candlestick with live price
+        change_amount = float(data["p"])
+        change_percent = float(data["P"])
+
         price_graph.update(price)
         volume_graph.update(volume)
-        
-        # update labels and order book
+
+        change_color = "#AAAAAA"  # default
+        if previous_change is not None:
+            if change_amount > previous_change:
+                change_color = "green"
+            elif change_amount < previous_change:
+                change_color = "red"
+        previous_change = change_amount
+
         live_coin.config(text=data["s"])
-        live_price.config(text=f"${price:.3f}")
+        live_price.config(text=f"${price:.3f}", foreground=change_color)
         live_volume.config(text=f"Volume: {volume:.3f}")
-        live_change_amount.config(text=f"Change: {float(data['p']):.3f}")
-        live_change_percent.config(text=f"Change (%): {data['P']}%")
-        
+        live_change_amount.config(text=f"Change: {change_amount:.3f}", foreground=change_color)
+        live_change_percent.config(text=f"Change (%): {change_percent:.3f}%", foreground=change_color)
+
         reload_book_order()
         update_24h_stats()
         load_recent_trades()
-    
+
     this_root.after(200, process_ws_data)
 
 def update_24h_stats():
@@ -149,6 +160,8 @@ def update_24h_stats():
 def load_candlestick_data():
     candles = data_token.get_candle_stick_data()
     price_graph.load_from_api(candles)
+
+# ================================================================================================
 
 operator = System()
 this_root = operator.initiate()
@@ -300,7 +313,7 @@ label_24h_high = label.create_label(l_lb, "High: --", 8, "normal")
 label_24h_high.pack(pady=(0,10))
 
 # ------------------------------------------------------------------------------------------------------------------
-header_tr = label.create_label(left_panel, "Trading Feed",12, "bold").pack(pady=(10,0))
+header_tr = label.create_label(left_panel, "Trading Feed",12, "bold").pack(pady=(35,0))
 
 recent_trade = frame.create_frame(left_panel, "ridge", 0, None, 100, 500)    # ---- Recent Trade
 recent_trade.pack(pady=(8,0), padx=(9,9))
@@ -313,12 +326,6 @@ r_tr.pack(side="right", expand=True, fill="both")
 
 change24hr = label.create_label(l_tr, "Price", 8, "bold").pack(padx=(10,0), pady=(5, 2))
 volume24hr = label.create_label(r_tr, "Quantity", 8, "bold").pack(padx=(0,10), pady=(5, 2))
-
-# ------------------------------------------------------------------------------------------------------------------ ### Bottom container ###
-
-# ----------------------------------- close buton
-close_button = button.create_button(left_panel, "close", comm=this_root.destroy)
-close_button.pack(anchor="se", padx=30, pady=(20, 40), side="left")
 
 # ============================================================================================================================================================ right side
 right_pannel = frame.create_frame(main, "flat", 0, None, 260, 0)
@@ -348,6 +355,10 @@ hide_vol_gh.pack(anchor="s", padx=10, pady=(0, 0), side="left")
 
 hide_trade = button.create_button(l_title, "Hide left pannel", comm=lambda: operator.hide_this(left_panel))
 hide_trade.pack(anchor="s", padx=10, pady=(0, 0), side="left")
+
+# ----------------------------------- close buton
+close_button1 = button.create_button(l_title, "close", comm=this_root.destroy)
+close_button1.pack(anchor="s", padx=10, pady=(0, 0), side="left")
 
 if __name__ == "__main__":
     close_candle_loop()

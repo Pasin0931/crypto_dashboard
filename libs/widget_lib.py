@@ -10,6 +10,9 @@ class System:
         root.config(bg="#252526")
         root.title("My Crypto")
         root.geometry("1300x960") # resize window
+        # root.resizable(False, False)
+        root.minsize(200, 200)     # optional: allow shrinking to a minimum
+        root.maxsize(1300, 960)    # prevent expanding beyond this
         return root
     
     def clean_bid_sale(self, list_order):
