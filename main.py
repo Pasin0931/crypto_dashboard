@@ -150,7 +150,6 @@ def load_candlestick_data():
     candles = data_token.get_candle_stick_data()
     price_graph.load_from_api(candles)
 
-
 operator = System()
 this_root = operator.initiate()
 
@@ -340,6 +339,15 @@ title_secondary = label.create_label(second_chart, "Volume", 12, "bold").pack(pa
 
 price_graph = LiveCandleStick(main_chart,title="Live Price (Candlestick)",ylabel="Price ($)",size1=6,size2=4)
 volume_graph = LiveGraph(second_chart, title=None, ylabel=None, size1=6, size2=2.5)
+
+hide_price_gh = button.create_button(l_title, "Hide price graph", comm=lambda: operator.hide_this(main_chart))
+hide_price_gh.pack(anchor="s", padx=(50,10), pady=(0, 0), side="left")
+
+hide_vol_gh = button.create_button(l_title, "Hide volume graph", comm=lambda: operator.hide_this(second_chart))
+hide_vol_gh.pack(anchor="s", padx=10, pady=(0, 0), side="left")
+
+hide_trade = button.create_button(l_title, "Hide left pannel", comm=lambda: operator.hide_this(left_panel))
+hide_trade.pack(anchor="s", padx=10, pady=(0, 0), side="left")
 
 if __name__ == "__main__":
     close_candle_loop()

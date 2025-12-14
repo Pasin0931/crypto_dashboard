@@ -9,7 +9,7 @@ class System:
         root = tk.Tk()
         root.config(bg="#252526")
         root.title("My Crypto")
-        root.geometry("1300x920") # resize window
+        root.geometry("1300x960") # resize window
         return root
     
     def clean_bid_sale(self, list_order):
@@ -25,9 +25,13 @@ class System:
     #     # print("Hellooo")
     #     self.clean_bid_sale(list_order)
     #     print("reloaded")
-        
-        
     
+    def hide_this(self, obj):
+        if obj.winfo_viewable():
+            obj.pack_forget()
+        else:
+            obj.pack(pady=20)
+
 class Widget:
     def __init__(self, root):
         self.root = root
