@@ -69,27 +69,15 @@ class token_data:
 
         return wanted_data
 
-    def get_candle_stick_data(self):
-        # 5. Get Candlestick (Kline) Data
+    def get_candle_stick_data(self, interval="1h", limit=24):
         url = "https://api.binance.com/api/v3/klines"
         params = {
-            "symbol": "BTCUSDT",
-            "interval": "1h",  # 1m, 5m, 15m, 1h, 4h, 1d, 1w, 1M
-            "limit": 24  # Last 24 hours
+            "symbol": self.token_symbol,  # Use dynamic token
+            "interval": interval,
+            "limit": limit
         }
         response = requests.get(url, params=params)
-
-        # for candle in response.json():
-        #     timestamp = candle[0]
-        #     open_price = candle[1]
-        #     high = candle[2]
-        #     low = candle[3]
-        #     close = candle[4]
-        #     volume = candle[5]
-        #     print(f"Open: ${open_price}, High: ${high}, Low: ${low}, Close: ${close}")
-
-        this_candle = response.json()
-        return this_candle
+        return response.json()
 
 # this__ = token_data("BTCUSDT")
 # this__.get_current_price()

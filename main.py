@@ -5,7 +5,7 @@ from queue import Queue
 from libs.widget_lib import System, Widget, Label, Button, Frame
 from libs.lib_socket import socket
 from libs.lib_data import token_data
-from libs.matplot_lib import LiveGraph
+from libs.matplot_lib import LiveGraph, LiveCandleStick
 
 displaying_data = {"left": [], "right": []}
 
@@ -18,40 +18,35 @@ displaying_data = {"left": [], "right": []}
 
 def on_dropdown_change(selected):
     global token_live
+    global data_token
 
     if selected == "BTC/USDT":
         new_url = "wss://stream.binance.com:9443/ws/btcusdt@ticker"
-
     elif selected == "ETH/USDT":
         new_url = "wss://stream.binance.com:9443/ws/ethusdt@ticker"
-
     elif selected == "BNB/USDT":
         new_url = "wss://stream.binance.com:9443/ws/bnbusdt@ticker"
-
     elif selected == "XRP/USDT":
         new_url = "wss://stream.binance.com:9443/ws/xrpusdt@ticker"
-
     elif selected == "SOL/USDT":
         new_url = "wss://stream.binance.com:9443/ws/solusdt@ticker"
-
     elif selected == "ADA/USDT":
         new_url = "wss://stream.binance.com:9443/ws/adausdt@ticker"
+    else:
+        new_url = "wss://stream.binance.com:9443/ws/btcusdt@ticker"
 
     token_live.stop_socket()
+
     token_live = socket(new_url, selected)
     token_live.set_update_callback(update_live_ui)
     token_live.setup_n_start_threading()
 
-    token_name = selected.replace("/","")
-    # print(token_name)
-    data_token.token_symbol = token_name
-    print(data_token.token_symbol)
+    data_token.token_symbol = selected.replace("/", "")
+
     reload_book_order()
-
-    price_graph.clear()
-    volume_graph.clear()
-
-    print(f"Token change to {selected}")
+    price_graph.clear() # Clean graph when change token
+    volume_graph.clear() # Clean graph when change token
+    load_candlestick_data()
 
 def place_holder_bid_sale(option, data):
     this_data_token = data.get_order_book_depth()
@@ -117,28 +112,32 @@ def load_recent_trades():
 def update_live_ui(data):
     ws_queue.put(data)
 
+def close_candle_loop():
+    price_graph.close_candle()
+    this_root.after(60000, close_candle_loop) # Deplay 60000 sec
+    volume_graph.clear() # Clear the volume graph as well
+
 def process_ws_data():
     while not ws_queue.empty():
         data = ws_queue.get()
-
         price = float(data["c"])
         volume = float(data["v"])
-
-        # ----------------- Update on label part
+        
+        # update candlestick with live price
+        price_graph.update(price)
+        volume_graph.update(volume)
+        
+        # update labels and order book
         live_coin.config(text=data["s"])
         live_price.config(text=f"${price:.3f}")
         live_volume.config(text=f"Volume: {volume:.3f}")
         live_change_amount.config(text=f"Change: {float(data['p']):.3f}")
         live_change_percent.config(text=f"Change (%): {data['P']}%")
-
+        
         reload_book_order()
         update_24h_stats()
         load_recent_trades()
-
-        # ----------------- Update on graph part
-        price_graph.update(price)
-        volume_graph.update(volume)
-
+    
     this_root.after(200, process_ws_data)
 
 def update_24h_stats():
@@ -146,6 +145,10 @@ def update_24h_stats():
     label_24h_change.config(text=f"24h Change: {stats['priceChangePercent']}%")
     label_24h_volume.config(text=f"24h Volume: {float(stats['volume']):.3f} {data_token.token_symbol}")
     label_24h_high.config(text=f"High: ${stats['highPrice']}")
+
+def load_candlestick_data():
+    candles = data_token.get_candle_stick_data()
+    price_graph.load_from_api(candles)
 
 
 operator = System()
@@ -328,16 +331,22 @@ charts.pack(side="left", fill="both", expand=True, padx=25, pady=(18,0))
 main_chart = frame.create_frame(charts, "ridge", 10, None, 650, 360)
 main_chart.pack(anchor="n", pady=10)
 
+title_main = label.create_label(main_chart, "Price ($)", 12, "bold").pack(padx=(0,10), pady=(0, 0))
+
 second_chart = frame.create_frame(charts, "ridge", 10, None, 650, 139)
 second_chart.pack(anchor="n", pady=1)
 
+title_secondary = label.create_label(second_chart, "Volume", 12, "bold").pack(padx=(0,10), pady=(0, 0))
 
-price_graph = LiveGraph(main_chart, title="Live Price ($)", ylabel="Price ($)", size1=6, size2=4)
-
-volume_graph = LiveGraph(second_chart, title="Live Volume", ylabel="Volume", size1=6, size2=2.5)
+price_graph = LiveCandleStick(main_chart,title="Live Price (Candlestick)",ylabel="Price ($)",size1=6,size2=4)
+volume_graph = LiveGraph(second_chart, title=None, ylabel=None, size1=6, size2=2.5)
 
 if __name__ == "__main__":
-    token_live.set_update_callback(update_live_ui) # call back to update token data
+    close_candle_loop()
+    token_live.set_update_callback(update_live_ui)
     token_live.setup_n_start_threading()
-    process_ws_data() # ---
+
+    load_candlestick_data()
+    process_ws_data()
+
     this_root.mainloop()
