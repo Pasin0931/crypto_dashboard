@@ -19,11 +19,16 @@ class LiveGraph:
 
         # ------------------------- Graph Setup
         self.fig = Figure(figsize=(size1, size2), dpi=100)
-        self.ax = self.fig.add_subplot(111)
+        self.fig.patch.set_facecolor("#1E1E1E")   # FIGURE background
 
-        self.ax.set_title(title)
-        self.ax.set_ylabel(ylabel)
-        self.ax.grid(True)
+        self.ax = self.fig.add_subplot(111)
+        self.ax.set_facecolor("#1E1E1E")           # AXES background
+
+        self.ax.set_title(title, color="white")
+        self.ax.set_ylabel(ylabel, color="white")
+
+        self.ax.tick_params(colors="white")        # ticks color
+        self.ax.grid(True, color="#333333")
 
         self.line, = self.ax.plot([], [])
 
