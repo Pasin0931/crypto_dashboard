@@ -1,3 +1,5 @@
+## WARNNING, MY CODE IS NOT OPTIMIZED, WHEN YOU RUN YOU MIGHT CRASH
+
 # Crypto Dashboard
 A real-time cryptocurrency dashboard built with Python and Tkinter. Displays live market data from Binance platform, including price tickers, volume, order book, recent trades, and candlestick/line charts. Supports multiple cryptocurrencies with toggleable panels.
 
